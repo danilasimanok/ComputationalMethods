@@ -2,6 +2,7 @@ import numpy as np
 from numpy.linalg import norm
 from utils.linear import hilbert_left_side
 from utils.feb24.simple_iteration.examples import examples
+from numpy.linalg import norm
 
 def simple_iterational_method(left_side, right_side, precision, iterations):
 	size = left_side.shape[0]
@@ -26,13 +27,17 @@ def simple_iterational_method(left_side, right_side, precision, iterations):
 			iterations -= 1
 			x0 = x1
 			x1 = beta + alpha @ x0
-		return x1
+		return (x1, iterations)
 
 if __name__ == '__main__':
 	print('Simple iteration')
-	for system in examples:
-		solution = simple_iterational_method(system.left_side, system.right_side, 0.001, 1000)
-		if solution is None:
-			print('Method sucks')
+	for (system, true_solution) in examples:
+		result = simple_iterational_method(system.left_side, system.right_side, 0.001, 1000)
+		print('A = {}'.format(system.left_side))
+		print('b = {}'.format(system.right_side))
+		if result is None:
+			print('Method unapplicable')
 		else:
-			print(solution)
+			solution, iterations = result
+			print('delta = {}, iterations = {}'.format(norm(solution - true_solution), 1000 - iterations + 1))
+		print('------======------')
