@@ -22,3 +22,8 @@
 - conclusions:
 	- conds change during LU decomposition
 	- best alphas in regularisation do not match
+
+## Task 3
+
+- source file: qr_decomposition.py
+- conclusion: sometimes cond_s grow up, but other conds always go down
