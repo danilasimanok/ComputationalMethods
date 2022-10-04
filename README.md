@@ -27,3 +27,10 @@
 
 - source file: qr_decomposition.py
 - conclusion: sometimes cond_s grow up, but other conds always go down
+
+## Task 4
+
+- source file: eigenvalue.py
+- conclusions:
+	- the less is the epsilon the more iterations are needed
+	- scal_method is better
