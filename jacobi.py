@@ -1,80 +1,76 @@
 import numpy as np
-from utils.math import sign
+import math
+from numpy.linalg import norm, eig
+from utils.linear import hilbert_left_side
 from utils.mar03.examples import examples
-from numpy.linalg import eig, norm
 
-def max_element(matrix):
-	size = matrix.shape[0]
+def max_abs(matrix):
 	res_i, res_j = 0, 1
+	size = matrix.shape[0]
 	for i in range(size):
 		for j in range(i + 1, size):
-			if abs(matrix[i][j]) > abs(matrix[res_i][res_j]):
+			if abs(matrix[res_i, res_j]) < abs(matrix[i, j]):
 				res_i, res_j = i, j
 	return res_i, res_j
 
-def circle(i, j, size):
-	if (j < size - 1 and j + 1 != i):
+def cyclic_choice(i, j, matrix_size):
+	if (j < (matrix_size - 1) and j + 1 != i):
 		return i, j + 1
-	elif j == size - 1:
+	elif j == matrix_size - 1:
 		return i + 1, 0
 	else:
 		return i, j + 2
 
-def jacobi_method(matrix, precision, find_element):
-	matrix = np.copy(matrix)
+def jacobi_method(matrix, precision, choosing_strategy):
 	size = matrix.shape[0]
+	i, j = choosing_strategy(0, 0, matrix)
 	iters = 0
-	i, j = find_element(0, 0, matrix)
 	
-	while (i != size or j != size) and matrix[i][j] > precision:
+	while (i != size - 1 or j != size) and abs(matrix[i, j]) > precision:
 		h = np.eye(size)
-		
-		x = - matrix[i][j]
-		y = matrix[i][i] - matrix[j][j]
-		cos, sin = 1 / 2 ** 0.5, 1 / 2 ** 0.5
-		if y != 0:
-			cos = (1 / 2 * (1 + abs(y) / (x ** 2 + y ** 2) ** 0.5)) ** 0.5
-			sin = sign(x * y) * abs(x) / (2 * cos * (x ** 2 + y ** 2) ** 0.5)
-		
+		phi = 0.5 * (math.atan((2 * matrix[i, j]) / (matrix[i, i] - matrix[j, j])))
+		cos, sin = math.cos(phi), math.sin(phi)
 		h[i, i], h[j, j] = cos, cos
 		h[i, j], h[j, i] = -sin, sin
+		
 		matrix = np.transpose(h) @ matrix @ h
 		
+		i, j = choosing_strategy(i, j, matrix)
 		iters += 1
-		i, j = find_element(i, j, matrix)
 	
-	return np.diag(matrix), iters
-
-def abs_method(matrix, precision):
-	find_element = lambda _1, _2, matrix: max_element(matrix)
-	return jacobi_method(matrix, precision, find_element)
-
-def circle_method(matrix, precision):
-	find_element = lambda i, j, matrix: circle(i, j, matrix.shape[0])
-	return jacobi_method(matrix, precision, find_element)
+	return np.diag(matrix), iters 
 
 def gershgorin_circles(matrix):
-	return [(matrix[i, i], sum(abs(matrix[i])) - abs(matrix[i,i])) for i in range(matrix.shape[0])]
+	return [(matrix[i, i], sum(abs(matrix[i])) - abs(matrix[i, i])) for i in range(matrix.shape[0])]
 
-def is_in_circles(num, circles):
-	any([abs(center - num) <= radius for center, radius in circles])
+def are_in_gershgorin_circles(xs, circles):
+	is_at_least_in_one_circle = lambda x: any([abs(center - x) <= radius for center, radius in circles])
+	xs_in_at_least_one = map(is_at_least_in_one_circle, xs)
+	return all(xs_in_at_least_one)
+
+max_abs_strat = lambda _1, _2, matrix: max_abs(matrix)
+max_abs_jacobi = lambda matrix, precision: jacobi_method(matrix, precision, max_abs_strat)
+
+cyclic_strat = lambda i, j, matrix: cyclic_choice(i, j, matrix.shape[0])
+cyclic_jacobi = lambda matrix, precision: jacobi_method(matrix, precision, cyclic_strat)
 
 if __name__ == '__main__':
-	percisions = [10 ** -i for i in range(2, 6)]
+	precisions = [10 ** (-i) for i in range(2, 6)]
 	
 	for matrix in examples:
-		true_lambdas = np.sort(eig(matrix)[0])
-		print('----====----')
+		print('|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||')
 		print(matrix)
+		lambda_true = np.sort(eig(matrix)[0])
 		
-		for precision in percisions:
-			print('epsilon = {}'.format(precision))
-			lambda_ans, ans_iters = abs_method(matrix, precision)
-			lambda_cir, cir_iters = circle_method(matrix, precision)
-			print('ans lambda error: {}\tans iters: {}'.format(lambda_ans, ans_iters))
-			print('circle lambda error: {}\tcircle iters: {}'.format(lambda_cir, cir_iters))
+		for precision in precisions:
+			lambda_abs, abs_iters = max_abs_jacobi(matrix, precision)
+			lambda_circle, circle_iters = cyclic_jacobi(matrix, precision)
+			
+			print('precision = {}'.format(precision))
+			print('abs error: {}\tabs iters: {}'.format(norm(np.sort(lambda_abs) - lambda_true), abs_iters))
+			print('cir error: {}\tcir iters: {}'.format(norm(np.sort(lambda_circle) - lambda_true), circle_iters))
 			
 			circles = gershgorin_circles(matrix)
-			ans_in_circles = all([is_in_circles(x, circles) for x in lambda_ans])
-			circle_in_circles = all([is_in_circles(x, circles) for x in lambda_cir])
-			print('ans lambdas are in circles: {}\tcircle lambdas are in circles: {}'.format(ans_in_circles, circle_in_circles))
+			print('abs in circles: {}'.format(are_in_gershgorin_circles(lambda_abs, circles)))
+			print('cir in circles: {}'.format(are_in_gershgorin_circles(lambda_circle, circles)))
+			print('----------==========----------')

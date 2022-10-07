@@ -27,3 +27,10 @@
 
 - source file: qr_decomposition.py
 - conclusion: sometimes cond_s grow up, but other conds always go down
+
+## Task 6
+
+- source file: jacobi.py
+- conclusions:
+	- The more is precision, the more iterations are needed.
+	- Found eigenvalues are in Gershgorin circles.
