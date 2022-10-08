@@ -21,12 +21,12 @@ def cyclic_choice(i, j, matrix_size):
 	else:
 		return i, j + 2
 
-def jacobi_method(matrix, precision, choosing_strategy):
+def jacobi_max_abs(matrix, precision):
 	size = matrix.shape[0]
-	i, j = choosing_strategy(0, 0, matrix)
+	i, j = max_abs(matrix)
 	iters = 0
 	
-	while (i != size - 1 or j != size) and abs(matrix[i, j]) > precision:
+	while abs(matrix[i, j]) > precision:
 		h = np.eye(size)
 		phi = 0.5 * (math.atan((2 * matrix[i, j]) / (matrix[i, i] - matrix[j, j])))
 		cos, sin = math.cos(phi), math.sin(phi)
@@ -35,10 +35,35 @@ def jacobi_method(matrix, precision, choosing_strategy):
 		
 		matrix = np.transpose(h) @ matrix @ h
 		
-		i, j = choosing_strategy(i, j, matrix)
+		i, j = max_abs(matrix)
 		iters += 1
 	
-	return np.diag(matrix), iters 
+	return np.diag(matrix), iters
+
+def jacobi_cyclic(matrix, precision):
+	size = matrix.shape[0]
+	iters = 0
+	
+	max_i, max_j = max_abs(matrix)
+	while abs(matrix[max_i, max_j]) > precision:
+		
+		i, j = cyclic_choice(0, 0, size)	
+		
+		while i != size - 1 or j != size:
+			h = np.eye(size)
+			phi = 0.5 * (math.atan((2 * matrix[i, j]) / (matrix[i, i] - matrix[j, j])))
+			cos, sin = math.cos(phi), math.sin(phi)
+			h[i, i], h[j, j] = cos, cos
+			h[i, j], h[j, i] = -sin, sin
+			
+			matrix = np.transpose(h) @ matrix @ h
+			
+			i, j = cyclic_choice(i, j, size)
+			iters += 1
+		
+		max_i, max_j = max_abs(matrix)
+	
+	return np.diag(matrix), iters
 
 def gershgorin_circles(matrix):
 	return [(matrix[i, i], sum(abs(matrix[i])) - abs(matrix[i, i])) for i in range(matrix.shape[0])]
@@ -48,14 +73,8 @@ def are_in_gershgorin_circles(xs, circles):
 	xs_in_at_least_one = map(is_at_least_in_one_circle, xs)
 	return all(xs_in_at_least_one)
 
-max_abs_strat = lambda _1, _2, matrix: max_abs(matrix)
-max_abs_jacobi = lambda matrix, precision: jacobi_method(matrix, precision, max_abs_strat)
-
-cyclic_strat = lambda i, j, matrix: cyclic_choice(i, j, matrix.shape[0])
-cyclic_jacobi = lambda matrix, precision: jacobi_method(matrix, precision, cyclic_strat)
-
 if __name__ == '__main__':
-	precisions = [10 ** (-i) for i in range(2, 6)]
+	precisions = [10 ** (-i) for i in range(2, 15)]
 	
 	for matrix in examples:
 		print('|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||')
@@ -63,8 +82,8 @@ if __name__ == '__main__':
 		lambda_true = np.sort(eig(matrix)[0])
 		
 		for precision in precisions:
-			lambda_abs, abs_iters = max_abs_jacobi(matrix, precision)
-			lambda_circle, circle_iters = cyclic_jacobi(matrix, precision)
+			lambda_abs, abs_iters = jacobi_max_abs(matrix, precision)
+			lambda_circle, circle_iters = jacobi_cyclic(matrix, precision)
 			
 			print('precision = {}'.format(precision))
 			print('abs error: {}\tabs iters: {}'.format(norm(np.sort(lambda_abs) - lambda_true), abs_iters))

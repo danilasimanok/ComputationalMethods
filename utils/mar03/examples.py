@@ -7,4 +7,4 @@ m1 = np.asarray([
 	[0.049099, 4.308033, -12.970687]
 ])
 
-examples = [m1, *[hilbert_left_side(n) for n in range(3,6)], hilbert_left_side(20)]
+examples = [*[hilbert_left_side(n) for n in range(3,6)], hilbert_left_side(20)]
