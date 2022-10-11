@@ -34,3 +34,8 @@
 - conclusions:
 	- the less is the epsilon the more iterations are needed
 	- scal_method is better
+
+## Task 7
+
+- source file: grid_method.py
+- conclusions are obvious
