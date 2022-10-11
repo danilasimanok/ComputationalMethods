@@ -1,5 +1,5 @@
 import numpy as np
-from utils.mar03.examples import examples
+from utils.mar03.eig.examples import examples
 from numpy.linalg import eig
 
 def pow_method(matrix, x0, precision, max_iters):

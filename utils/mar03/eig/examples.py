@@ -1,4 +1,4 @@
-from ..linear import hilbert_left_side
+from ...linear import hilbert_left_side
 import numpy as np
 
 m1 = [
