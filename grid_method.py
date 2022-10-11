@@ -1,5 +1,6 @@
-from math import exp
 from numpy.linalg import solve
+import matplotlib.pyplot  as plt
+from utils.mar10.grid.examples import examples
 
 def segments(a, b, h):
 	n = int((b - a) / h)
@@ -61,16 +62,29 @@ def solve_with_precision(q, r, f, a, b, alpha, betta):
 	
 	return result
 
-if __name__ == '__main__':
-	q = lambda x: (3 - x) * (x + 2) / 2
-	r = lambda x: (x - 3) * exp(x / 2)
-	f = lambda x: (3 - x) * (2 - x)
-	h = 0.1
+def show_one(q, r, f):
 	a, b = -1, 1
 	alpha, betta = 0, 0
 	
 	solutions = solve_with_precision(q, r, f, a, b, alpha, betta)
 	n_err_s = map(lambda sol_pair: (len(sol_pair[0]), compute_error(sol_pair[0], sol_pair[1])), zip(solutions[:-1], solutions[1:]))
 	
+	_, axes = plt.subplots(1, 2, figsize=(20, 4))
+	
+	ns, errors = [], []
 	for n, error in n_err_s:
-		print(n, error)
+		ns.append(n)
+		errors.append(error)
+	
+	axes[0].plot(ns, errors, marker='.', color='blue', mec='black', ms=8)
+	axes[0].set_title("||delta|| (n)")
+	
+	grid = segments(a, b, 0.000390625)
+	axes[1].plot(grid, solutions[-1], marker='.', color='blue', mec='black', ms=8)
+	axes[1].set_title("u(x)")
+	
+	plt.show()
+
+if __name__ == '__main__':
+	for q, r, f in examples:
+		show_one(q, r, f)
