@@ -46,3 +46,8 @@
 
 - source file: grid_method.py
 - conclusions are obvious
+
+## Task 8
+
+- source file: galerkin.py
+- conclusion: the bigger is N the better is solution
