@@ -40,3 +40,8 @@
 - conclusions:
 	- The more is precision, the more iterations are needed.
 	- Found eigenvalues are in Gershgorin circles.
+
+## Task 8
+
+- source file: galerkin.py
+- conclusion: the bigger is N the better is solution
