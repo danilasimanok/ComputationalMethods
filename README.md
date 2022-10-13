@@ -34,9 +34,15 @@
 - conclusions:
 	- the less is the epsilon the more iterations are needed
 	- scal_method is better
+
 ## Task 6
 
 - source file: jacobi.py
 - conclusions:
 	- The more is precision, the more iterations are needed.
 	- Found eigenvalues are in Gershgorin circles.
+
+## Task 7
+
+- source file: grid_method.py
+- conclusions are obvious
