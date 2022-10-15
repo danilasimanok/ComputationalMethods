@@ -51,3 +51,10 @@
 
 - source file: galerkin.py
 - conclusion: the bigger is N the better is solution
+
+## Task 14
+
+- source file: clustering.py
+- conclusions:
+	- sometimes clusters depen on centers and always on distance
+	- iers always depend on centers and distance
