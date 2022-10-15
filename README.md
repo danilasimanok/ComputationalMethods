@@ -51,3 +51,10 @@
 
 - source file: galerkin.py
 - conclusion: the bigger is N the better is solution
+
+## Task 13
+
+- source file: monte_karlo.py
+- conclusions:
+	- constant density is generally less accurate than linear one
+	- classical method is generally less accurate than others
