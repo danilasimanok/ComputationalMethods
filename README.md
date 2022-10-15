@@ -51,3 +51,8 @@
 
 - source file: galerkin.py
 - conclusion: the bigger is N the better is solution
+
+## Task 10
+
+- source file: thermal_conductivity.py
+- conclusion: if stability condition isn't met, the figure is not indicative
